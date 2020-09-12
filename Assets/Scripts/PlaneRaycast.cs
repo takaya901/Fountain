@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using NativeUtil;
 
 [RequireComponent(typeof(ARRaycastManager))]
 public class PlaneRaycast : MonoBehaviour
@@ -13,6 +12,7 @@ public class PlaneRaycast : MonoBehaviour
     void Awake()
     {
         Input.backButtonLeavesApp = true;
+        DontDestroyOnLoad(gameObject);
         _raycastManager = GetComponent<ARRaycastManager>();
     }
 
@@ -26,6 +26,15 @@ public class PlaneRaycast : MonoBehaviour
         // Raycastの衝突情報は距離によってソートされるため、0番目が最も近い場所でヒットした情報となります
         var hitPose = _hits[0].pose;
         
-        AndroidUtil.Vibrate((long)5f);
+        // AndroidUtil.Vibrate((long)5f);
+    }
+
+    public bool Raycast(out List<ARRaycastHit> hits)
+    {
+        hits = new List<ARRaycastHit>();
+        if (Input.touchCount <= 0) return false;
+        
+        var touchPosition = Input.GetTouch(0).position;
+        return _raycastManager.Raycast(touchPosition, hits, TrackableType.Planes);
     }
 }
