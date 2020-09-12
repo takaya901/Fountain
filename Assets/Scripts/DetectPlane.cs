@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.ARFoundation;
@@ -19,6 +20,7 @@ public class DetectPlane : MonoBehaviour
 
     void Update()
     {
+        // Debug.Log(_arPlaneManager.trackables);
         if (_planeRaycast.Raycast(out _hits)) {
             OnPlaneTouched();
         }
@@ -26,10 +28,16 @@ public class DetectPlane : MonoBehaviour
 
     void OnPlaneTouched()
     {
+        //タッチされた平面を保存
         PlaneManager.arPlane = _arPlaneManager.GetPlane(_hits[0].trackableId);
+        //それ以外の平面を破棄
+        foreach (var plane in _arPlaneManager.trackables) {
+            if (plane != PlaneManager.arPlane) {
+                Destroy(plane.gameObject);
+            }
+        }
         // Debug.Log(PlaneManager.arPlane.size);
         
-        // イベントに登録
         SceneManager.sceneLoaded += GameSceneLoaded;
         SceneManager.LoadScene("Main");
     }
@@ -38,9 +46,9 @@ public class DetectPlane : MonoBehaviour
     {
         //平面検出を停止
         GetComponent<ARPlaneManager>().detectionMode = PlaneDetectionMode.None;
-
-        // イベントから削除
-        SceneManager.sceneLoaded -= GameSceneLoaded;
+        //このコンポーネントを無効に
         enabled = false;
+
+        SceneManager.sceneLoaded -= GameSceneLoaded;
     }
 }

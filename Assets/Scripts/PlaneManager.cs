@@ -14,6 +14,6 @@ public class PlaneManager : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(arPlane?.center);
+        // Debug.Log(arPlane?.center);
     }
 }
